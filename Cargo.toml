@@ -1,0 +1,15 @@
+[package]
+name = "ereea_rb"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bevy = "0.13.2"
+
+#Optimisation pour le débogage
+[profile.dev]
+opt-level = 1
+
+#Optimisation des dépendances
+[profile.dev.package."*"]
+opt-level = 3
