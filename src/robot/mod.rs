@@ -1,1 +1,1 @@
-mod robot;
+pub mod robot;

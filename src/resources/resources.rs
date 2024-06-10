@@ -1,11 +1,10 @@
-use std::collections::HashMap;
-
 #[derive(Clone)]
 pub enum ResourceType {
     Energie,
     Lieu,
     Minerai,
 }
+
 #[derive(Clone)]
 pub struct Resource {
     pub resource_type: ResourceType,
