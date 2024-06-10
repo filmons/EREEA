@@ -1,28 +1,15 @@
-mod camera;
-mod debug;
-mod movement;
-mod robot;
-
-use bevy::prelude::*;
-use camera::CameraPlugin;
-use debug::DebugPlugin;
-use movement::MovementPlugin;
-use robot::RobotPlugin;
+use map::map::Map;
+use utils::utils::generate_rand;
+mod utils;
+mod map;
 
 fn main() {
-    App::new()
-        // Bevy fonctions
-        .insert_resource(ClearColor(Color::rgb(0.1, 0.0, 0.15)))
-        .insert_resource(AmbientLight {
-            color: Color::default(), //Blanche
-            brightness: 0.75
-        })
-        .add_plugins(DefaultPlugins)
+    //Seed aléatoire, maiss maps reproductibles grâce au numéro de la seed comme dans Minecraft.
+    let map_seed = generate_rand(1, 2);
+    let map_width: usize = 32;
+    let map_height: usize = 32;
+    let map = Map::new(map_seed, map_width, map_height, 5, 4, 2, 3);
 
-        // Nos fonctions
-        .add_plugins(RobotPlugin)
-        .add_plugins(CameraPlugin)
-        .add_plugins(MovementPlugin)
-        .add_plugins(DebugPlugin)
-        .run();
+    // Afficher la carte
+    map::map::Map::display_map(&map);
 }
