@@ -1,14 +1,15 @@
-use std::vec;
+use std::{collections::HashMap, vec};
 
 use super::tiles::{Tile, TileType};
 
-use ereea::{resources::resources::{Resource, ResourceType}, robot::robot::{Robot, RobotType}};
 use noise::{NoiseFn, Perlin, Seedable};
 use crate::utils::utils::generate_rand;
+use crate::resources::resources::{Resource, ResourceType};
+use crate::robot::robot::{Robot, RobotType};
 
 pub struct Map {
     pub tiles: Vec<Vec<Tile>>,
-    pub resources: Vec<Vec<Option<Resource>>>, //On veut une ressource par empl
+    pub resources: Vec<Vec<Option<Resource>>>,
     pub robots: Vec<Vec<Option<Robot>>>,
     pub width: usize,
     pub height: usize,
@@ -158,5 +159,63 @@ impl Map {
         } else {
             None
         }
+    }
+
+    pub fn find_closest_robot(&self, x: usize, y: usize) -> Option<(usize, usize)> {
+        let mut min_distance = usize::MAX;
+        let mut closest_robot: Option<(usize, usize)> = None;
+
+        for (row_index, row) in self.robots.iter().enumerate() {
+            for (col_index, robot) in row.iter().enumerate() {
+                if let Some(robot) = robot {
+                    let distance = self.calculate_distance(x, y, robot.pos_x, robot.pos_y);
+                    if distance < min_distance {
+                        min_distance = distance;
+                        closest_robot = Some((col_index, row_index));
+                    }
+                }
+            }
+        }
+
+        closest_robot
+    }
+
+    fn calculate_distance(&self, x1: usize, y1: usize, x2: usize, y2: usize) -> usize {
+        ((x1 as isize - x2 as isize).abs() + (y1 as isize - y2 as isize).abs()) as usize
+    }
+
+    pub fn find_closest_robots(&mut self) -> HashMap<(usize, usize), (usize, usize)> {
+        let mut closest_robots = HashMap::new();
+    
+        // Vérifier si tous les robots sont occupés d'abord
+        let all_robots_busy = self.robots.iter().all(|row| {
+            row.iter().all(|robot| {
+                if let Some(robot) = robot {
+                    robot.is_busy
+                } else {
+                    false
+                }
+            })
+        });
+    
+        // Si c'est le cas on crée un nouveau robot
+        if all_robots_busy {
+            println!("{}", "Tous les robots de l'essaim sont occupés sont occupés, appel à un nouveau robot...");
+            self.add_robots(1);
+        }
+    
+        for (row_index, row) in self.resources.iter().enumerate() {
+            for (col_index, resource) in row.iter().enumerate() {
+                if let Some(resource) = resource {
+                    if !resource.is_consumed {
+                        if let Some((robot_x, robot_y)) = self.find_closest_robot(col_index, row_index) {
+                            closest_robots.insert((col_index, row_index), (robot_x, robot_y));
+                        }
+                    }
+                }
+            }
+        }
+
+        closest_robots
     }
 }
