@@ -10,19 +10,28 @@ pub enum RobotType {
 
 #[derive(Clone)]
 pub struct Robot {
+    pub is_busy: bool,
     pub robot_type: RobotType,
     pub resources: Vec<Resource>,
-    pub posx: usize,
-    pub posy: usize,
+    pub pos_x: usize,
+    pub pos_y: usize,
 }
 
 impl Robot {
-    pub fn new(robot_type: RobotType, posx: usize, posy: usize) -> Self {
-        Self { 
+    pub fn new(robot_type: RobotType, x: usize, y: usize) -> Self {
+        Self {
+            is_busy: false,
             robot_type,
             resources: Vec::new(),
-            posx,
-            posy,
+            pos_x : x,
+            pos_y : y
+        }
+    }
+
+    pub fn assign_mission(&mut self) {
+        if !self.is_busy {
+            println!("Assignation de la mission au robot aux coordonnées ({}, {}).", self.pos_x, self.pos_y);
+            self.is_busy = true;
         }
     }
 }
