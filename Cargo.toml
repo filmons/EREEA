@@ -3,6 +3,12 @@ name = "ereea"
 version = "0.1.0"
 edition = "2021"
 
+[profile.release]
+lto = true
+opt-level = 3
+
 [dependencies]
+macroquad = "0.4.8"
 noise = "0.9.0"
+quad-snd = "0.2.8"
 rand = "0.8.5"
