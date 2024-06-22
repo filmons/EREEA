@@ -23,7 +23,9 @@ pub struct Map {
 }
 
 impl Map {
-    pub async fn new(width: usize, height: usize, seed: u32) -> Self {
+    pub async fn new(width: usize, height: usize, min_nb_per_resources: u32, max_nb_per_resources: u32) -> Self {
+        let seed = generate_rand(0, std::u32::MAX); //0 à infini
+
         let tiles = Tiles::new(seed, height, width, "assets/images/tileset.png").await;
 
         let mut obstacles = Vec::new();
@@ -50,14 +52,13 @@ impl Map {
             obstacles,
         };
 
-        let nb_initial_energies: u32 = 3;
-        let nb_initial_minerals: u32 = 3;
-        let nb_initial_places: u32 = 3;
+        let nb_initial_energies: u32 = generate_rand(min_nb_per_resources, max_nb_per_resources);
+        let nb_initial_minerals: u32 = generate_rand(min_nb_per_resources, max_nb_per_resources);
+        let nb_initial_places: u32 = generate_rand(min_nb_per_resources, max_nb_per_resources);
 
-        // 1 robot pour 3 ressources pour mieux profiter de la simulation
+        // 1 robot pour 1 ressources
         let nb_initial_robots =
-            ((nb_initial_energies + nb_initial_minerals + nb_initial_places) as f32 / 3.0).ceil()
-                as u32;
+            (nb_initial_energies + nb_initial_minerals + nb_initial_places) as u32;
 
         map.add_resources(nb_initial_energies, ResourceType::Energie)
             .await;
@@ -68,7 +69,9 @@ impl Map {
 
         map.add_robot(nb_initial_robots).await;
 
-        map.assign_missions();
+        map.draw_terminal();
+
+        map.assign_missions().await;
 
         map
     }
@@ -100,7 +103,7 @@ impl Map {
     }
 
     // Assigner des missions aux robots en fonction des ressources
-    pub fn assign_missions(&mut self) {
+    pub async fn assign_missions(&mut self) {
         for resource in &self.resources {
             if !resource.is_consumed {
                 let x = resource.entity.pos_x as usize;
@@ -115,29 +118,63 @@ impl Map {
         }
     }
 
-    //On cherche le robot libre le plus proche de la mission souhaitée
-    pub fn find_closest_robot(&self, x: usize, y: usize) -> Option<usize> {
-        let mut min_distance = usize::MAX;
-        let mut closest_robot: Option<usize> = None;
+    pub async fn check_robot_missions(&mut self) {
+        let mut robots = self.robots.lock().unwrap(); // Verrouiller l'accès aux robots
 
-        let robots = self.robots.lock().unwrap();
-        for (index, robot) in robots.iter().enumerate() {
-            if !robot.is_busy {
-                // Calcul de la distance entre le robot et les coordonnées données
-                let distance = ((x as isize - robot.entity.pos_x as isize).abs()
-                    + (y as isize - robot.entity.pos_y as isize).abs())
-                    as usize;
+        for resource in self.resources.iter_mut() {
+            for robot in robots.iter_mut() {
+                if robot.is_busy &&
+                    (robot.mission_target.0 == resource.entity.pos_x &&
+                    robot.mission_target.1 == resource.entity.pos_y) &&
 
-                if distance < min_distance {
-                    min_distance = distance;
-                    closest_robot = Some(index);
+                    // Vérifier si le robot est proche de sa cible avec une marge de tolérance
+                    ((robot.entity.pos_x - resource.entity.pos_x).abs() < 0.5 &&
+                    (robot.entity.pos_y - resource.entity.pos_y).abs() < 0.5)
+                {
+                    resource.set_consumed();
+
+                    match resource.resource_type {
+                        // Spécialiser le robot en fonction du type de ressource
+                        ResourceType::Minerai => {
+                            robot
+                                .specialisation("assets/images/robot_1.png", resource.clone())
+                                .await;
+                        }
+                        ResourceType::Lieu => {
+                            robot
+                                .specialisation("assets/images/robot_2.png", resource.clone())
+                                .await;
+                        }
+                        ResourceType::Energie => {
+                            robot
+                                .specialisation("assets/images/robot_3.png", resource.clone())
+                                .await;
+                        }
+                    }
                 }
             }
         }
 
-        closest_robot
+        // Retirer les resources consommées du vecteur
+        self.resources.retain(|resource| !resource.is_consumed);
     }
 
+    pub fn count_resources(&self) -> std::collections::HashMap<ResourceType, u32> {
+        let mut resource_count = std::collections::HashMap::new();
+
+        let robots = self.robots.lock().unwrap();
+        for robot in &*robots {
+            for resource in &robot.resources {
+                *resource_count
+                    .entry(resource.resource_type.clone())
+                    .or_insert(0) += 1;
+            }
+        }
+
+        resource_count
+    }
+
+    //MODE GRAPHIQUE
     pub fn draw(&self, mouse_x: f32, mouse_y: f32, zoom: f32) {
         let mut x = -(mouse_x - screen_width() / 2.0);
         let mut y = -(mouse_y - screen_height() / 2.0);
@@ -205,10 +242,38 @@ impl Map {
         }
     }
 
+    //MODE TEXTUEL
     pub fn draw_terminal(&self) {
+        println!("Topographie de la zone de mission : \n");
+
         for &tile in &self.tile_map.tiles_map {
             print!("{}", tile as char);
         }
+
+        println!();
+    }
+
+    //On cherche le robot libre le plus proche de la mission souhaitée
+    pub fn find_closest_robot(&self, x: usize, y: usize) -> Option<usize> {
+        let mut min_distance = usize::MAX;
+        let mut closest_robot: Option<usize> = None;
+
+        let robots = self.robots.lock().unwrap();
+        for (index, robot) in robots.iter().enumerate() {
+            if !robot.is_busy {
+                // Calcul de la distance entre le robot et les coordonnées données
+                let distance = ((x as isize - robot.entity.pos_x as isize).abs()
+                    + (y as isize - robot.entity.pos_y as isize).abs())
+                    as usize;
+
+                if distance < min_distance {
+                    min_distance = distance;
+                    closest_robot = Some(index);
+                }
+            }
+        }
+
+        closest_robot
     }
 
     //Obtenir toutes les cases qui ne sont ni obstacle ni vide pour faire pop nos objets
@@ -220,8 +285,9 @@ impl Map {
                 let index = y * self.tile_map.map_width + x;
                 let tile = self.tile_map.tiles_map[index];
 
+                // Éviter le vide et les obstacles
                 if tile != b' ' && tile != b'#' {
-                    // Éviter le vide et les obstacles
+                    //Éviter les autres robots
                     let robots = self.robots.lock().unwrap();
 
                     if !robots.iter().any(|robot| {
@@ -234,47 +300,6 @@ impl Map {
         }
 
         free_spaces
-    }
-
-    pub async fn check_robot_missions(&mut self) {
-        let mut robots = self.robots.lock().unwrap(); // Verrouiller l'accès aux robots
-
-        for resource in self.resources.iter_mut() {
-            for robot in robots.iter_mut() {
-                if robot.is_busy &&
-                    (robot.mission_target.0 == resource.entity.pos_x &&
-                    robot.mission_target.1 == resource.entity.pos_y) &&
-
-                    // Vérifier si le robot est proche de sa cible avec une marge de tolérance
-                    ((robot.entity.pos_x - resource.entity.pos_x).abs() < 4.0 &&
-                    (robot.entity.pos_y - resource.entity.pos_y).abs() < 4.0)
-                {
-                    resource.set_consumed();
-
-                    match resource.resource_type {
-                        // Spécialiser le robot en fonction du type de ressource
-                        ResourceType::Minerai => {
-                            robot
-                                .specialisation("assets/images/robot_1.png", resource.clone())
-                                .await;
-                        }
-                        ResourceType::Lieu => {
-                            robot
-                                .specialisation("assets/images/robot_2.png", resource.clone())
-                                .await;
-                        }
-                        ResourceType::Energie => {
-                            robot
-                                .specialisation("assets/images/robot_3.png", resource.clone())
-                                .await;
-                        }
-                    }
-                }
-            }
-        }
-
-        // Retirer les resources consommées du vecteur
-        self.resources.retain(|resource| !resource.is_consumed);
     }
 
     pub fn move_robots(&self) {

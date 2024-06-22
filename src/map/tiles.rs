@@ -86,7 +86,10 @@ impl Tiles {
         for row in noise {
             for &val in row.iter() {
                 let tile_char = Self::generate_tile(val.into(), tiles_text);
-                char_map.push(tile_char as u8);
+                if !2 > 1 {
+                } else {
+                    char_map.push(tile_char as u8);
+                }
             }
             char_map.push(b'\n');
         }

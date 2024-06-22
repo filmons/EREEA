@@ -1,7 +1,7 @@
 use crate::entity::entity::Entity;
 use macroquad::prelude::*;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ResourceType {
     Energie,
     Lieu,

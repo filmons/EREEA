@@ -37,7 +37,7 @@ impl Robot {
     pub fn assign_mission(&mut self, mission_x: f32, mission_y: f32) {
         if !self.is_busy {
             println!(
-                "Assignation de la mission aux coordonnées ({}, {}).",
+                "Assignation de mission aux coordonnées ({}, {}).",
                 mission_x, mission_y
             );
             self.mission_target = (mission_x, mission_y);

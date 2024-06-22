@@ -50,29 +50,29 @@ impl Entity {
             let tile_x = (new_pos_x / TILE_SIZE).round() as usize;
             let tile_y = (new_pos_y / TILE_SIZE).round() as usize;
 
-            if !obstacles.contains(&(tile_x, tile_y)) {
-                self.pos_x = new_pos_x;
-                self.pos_y = new_pos_y;
-            } else {
-                // Chercher une position alternative si il y a un obstacle ou du vide
-                let alternatives = [
-                    (self.pos_x + direction_x * self.speed, self.pos_y),
-                    (self.pos_x, self.pos_y + direction_y * self.speed),
-                    (self.pos_x - direction_x * self.speed, self.pos_y),
-                    (self.pos_x, self.pos_y - direction_y * self.speed),
-                ];
+            // if !obstacles.contains(&(tile_x, tile_y)) {
+            self.pos_x = new_pos_x;
+            self.pos_y = new_pos_y;
+            // } else {
+            //     // Chercher une position alternative si il y a un obstacle ou du vide
+            //     let alternatives = [
+            //         (self.pos_x + direction_x * self.speed, self.pos_y),
+            //         (self.pos_x, self.pos_y + direction_y * self.speed),
+            //         (self.pos_x - direction_x * self.speed, self.pos_y),
+            //         (self.pos_x, self.pos_y - direction_y * self.speed),
+            //     ];
 
-                for &(alt_x, alt_y) in &alternatives {
-                    let alt_tile_x = (alt_x / TILE_SIZE).round() as usize;
-                    let alt_tile_y = (alt_y / TILE_SIZE).round() as usize;
+            //     for &(alt_x, alt_y) in &alternatives {
+            //         let alt_tile_x = (alt_x / TILE_SIZE).round() as usize;
+            //         let alt_tile_y = (alt_y / TILE_SIZE).round() as usize;
 
-                    if !obstacles.contains(&(alt_tile_x, alt_tile_y)) {
-                        self.pos_x = alt_x;
-                        self.pos_y = alt_y;
-                        break;
-                    }
-                }
-            }
+            //         if !obstacles.contains(&(alt_tile_x, alt_tile_y)) {
+            //             self.pos_x = alt_x;
+            //             self.pos_y = alt_y;
+            //             break;
+            //         }
+            //     }
+            // }
         }
     }
 
