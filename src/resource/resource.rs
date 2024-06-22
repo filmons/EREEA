@@ -1,14 +1,14 @@
 use crate::entity::entity::Entity;
 use macroquad::prelude::*;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum ResourceType {
     Energie,
     Lieu,
     Minerai,
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct Resource {
     pub entity: Entity,
     pub resource_type: ResourceType,

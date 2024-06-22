@@ -12,3 +12,5 @@ macroquad = "0.4.8"
 noise = "0.9.0"
 quad-snd = "0.2.8"
 rand = "0.8.5"
+tokio = { version = "1", features = ["full"] }
+async-std = "1.10.0"
