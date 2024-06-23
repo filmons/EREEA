@@ -23,7 +23,7 @@ impl Robot {
     pub async fn new(robot_type: RobotType, x: f32, y: f32) -> Self {
         let speed = 0.006;
 
-        let entity = Entity::new(x, y, speed, "assets/images/robot_0.png").await;
+        let entity = Entity::new(x, y, speed, "assets/images/robot_drone_0.png").await;
 
         Self {
             entity,

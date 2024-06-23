@@ -1,5 +1,4 @@
 use std::{thread::sleep, time::Duration};
-
 use ereea::station::station::Station;
 use macroquad::prelude::*;
 
@@ -13,7 +12,7 @@ async fn main() {
 
     let mut station = Station::new(map_size_factor, min_nb_per_resources, max_nb_per_resources).await;
 
-    // station.play_galactic_music().await;
+    station.play_galactic_music().await;
 
     loop {
         clear_background(BLACK);
@@ -33,6 +32,9 @@ async fn main() {
             station.restart_new_mission().await;
             // break;
         }
+
+        let mission_text = format!("Mission [ANNÉE-Y{}]", station.epoch);
+        draw_text(&mission_text, 32.0, 32.0, 32.0, WHITE);
 
         next_frame().await;
     }

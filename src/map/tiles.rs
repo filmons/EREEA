@@ -1,4 +1,4 @@
-use crate::utils::utils::TILE_SIZE;
+use crate::utils::utils::{generate_rand, TILE_SIZE};
 use macroquad::{
     math::Rect,
     texture::{load_texture, Texture2D},
@@ -42,12 +42,14 @@ impl Tiles {
     pub async fn new(seed: u32, map_width: usize, map_height: usize, texture_path: &str) -> Self {
         let tileset = load_texture(texture_path).await.unwrap();
 
+        let biome: f32 = generate_rand(0, 5) as f32;
+
         // Initialiser les types de tuiles en fonctions de leur position sur le tileset
         let types = TilesTextures {
-            void: Rect::new(TILE_SIZE * 0.0, TILE_SIZE * 0.0, TILE_SIZE, TILE_SIZE),
-            obstacle: Rect::new(TILE_SIZE * 3.0, TILE_SIZE * 3.0, TILE_SIZE, TILE_SIZE),
-            ground1: Rect::new(TILE_SIZE * 0.0, TILE_SIZE * 3.0, TILE_SIZE, TILE_SIZE),
-            ground2: Rect::new(TILE_SIZE * 2.0, TILE_SIZE * 3.0, TILE_SIZE, TILE_SIZE),
+            void: Rect::new(TILE_SIZE * 0.0, TILE_SIZE * biome, TILE_SIZE, TILE_SIZE),
+            ground1: Rect::new(TILE_SIZE * 1.0, TILE_SIZE * biome, TILE_SIZE, TILE_SIZE),
+            ground2: Rect::new(TILE_SIZE * 2.0, TILE_SIZE * biome, TILE_SIZE, TILE_SIZE),
+            obstacle: Rect::new(TILE_SIZE * 3.0, TILE_SIZE * biome, TILE_SIZE, TILE_SIZE)
         };
 
         // Pour ajouter un peu plus de contraste à la map.

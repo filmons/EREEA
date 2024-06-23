@@ -137,17 +137,17 @@ impl Map {
                         // Spécialiser le robot en fonction du type de ressource
                         ResourceType::Minerai => {
                             robot
-                                .specialisation("assets/images/robot_1.png", resource.clone())
+                                .specialisation("assets/images/robot_drone_1.png", resource.clone())
                                 .await;
                         }
                         ResourceType::Lieu => {
                             robot
-                                .specialisation("assets/images/robot_2.png", resource.clone())
+                                .specialisation("assets/images/robot_drone_2.png", resource.clone())
                                 .await;
                         }
                         ResourceType::Energie => {
                             robot
-                                .specialisation("assets/images/robot_3.png", resource.clone())
+                                .specialisation("assets/images/robot_drone_3.png", resource.clone())
                                 .await;
                         }
                     }

@@ -1,8 +1,4 @@
-use macroquad::audio::play_sound;
-use quad_snd::PlaySoundParams;
-
-use crate::{map::map::Map, utils::utils::generate_rand};
-
+use crate::map::map::Map;
 use super::sounds::Sounds;
 
 #[derive(Debug, PartialEq)]
@@ -48,12 +44,6 @@ impl Station {
         }
     }
 
-    // pub fn check_simulation_stage(&mut self) {
-    //     if self.stage == StageType::Analysing {
-    //         self.simulation_analysis();
-    //     }
-    // }
-
     pub fn check_if_finished(&self) -> bool {
         self.stage == StageType::Finished
     }
@@ -70,16 +60,8 @@ impl Station {
 
     pub async fn play_galactic_music(&self) {
         if self.play_music {
-            let sounds = Sounds::load().await;
-
-            // play_sound(
-            //     &sounds.game_music.clone(),
-            //     PlaySoundParams {
-            //         looped: true, // Jouer la musique en boucle
-            //         volume: 0.25,
-            //         ..Default::default()
-            //     },
-            // );
+            let sounds = Sounds::load_music().await;
+            sounds.play_galactic_music();
         }
     }
 
