@@ -33,7 +33,7 @@ pub struct Tiles {
     pub tiles_text: TilesText,
     textures: TilesTextures,
 
-    /* Pour permettre le déplacement avec la souris #util quand la map est trop large */
+    /* Pour permettre le déplacement avec la souris #util quand la map est assez large */
     pub offset_x: f32,
     pub offset_y: f32,
 }
