@@ -8,7 +8,7 @@ pub enum ResourceType {
     Minerai,
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct Resource {
     pub entity: Entity,
     pub resource_type: ResourceType,

@@ -1,4 +1,3 @@
-use ereea::robot::robot::RobotType;
 use macroquad::prelude::*;
 
 
@@ -10,11 +9,12 @@ mod tests {
 
     #[macroquad::test]
     async fn test_map_creation() {
-        let width = 20;
-        let height = 20;
-        let seed = 12345;
+        let width = 64;
+        let height = 64;
+        let min_nb_resources = 1;
+        let max_nb_resources = 6;
 
-        let map = Map::new(width, height, seed).await;
+        let map = Map::new(width, height, min_nb_resources, max_nb_resources).await;
 
         // Vérifier que la carte a été correctement initialisée
         assert_eq!(map.tile_map.map_width, width);
@@ -27,11 +27,12 @@ mod tests {
 
     #[macroquad::test]
     async fn test_add_resources() {
-        let width = 20;
-        let height = 20;
-        let seed = 12345;
+        let width = 64;
+        let height = 64;
+        let min_nb_resources = 1;
+        let max_nb_resources = 6;
 
-        let mut map = Map::new(width, height, seed).await;
+        let mut map = Map::new(width, height, min_nb_resources, max_nb_resources).await;
 
         map.add_resources(1, ResourceType::Energie).await;
         assert_eq!(map.resources.len(), 10);
@@ -41,11 +42,12 @@ mod tests {
 
     #[macroquad::test]
     async fn test_add_robot() {
-        let width = 20;
-        let height = 20;
-        let seed = 12345;
+        let width = 64;
+        let height = 64;
+        let min_nb_resources = 1;
+        let max_nb_resources = 6;
 
-        let mut map = Map::new(width, height, seed).await;
+        let mut map = Map::new(width, height, min_nb_resources, max_nb_resources).await;
 
         map.add_robot(1).await;
         assert_eq!(map.robots.lock().unwrap().len(), 4);
@@ -56,11 +58,12 @@ mod tests {
 
     #[macroquad::test]
     async fn test_assign_missions() {
-        let width = 20;
-        let height = 20;
-        let seed = 12345;
+        let width = 64;
+        let height = 64;
+        let min_nb_resources = 1;
+        let max_nb_resources = 6;
 
-        let mut map = Map::new(width, height, seed).await;
+        let mut map = Map::new(width, height, min_nb_resources, max_nb_resources).await;
 
         map.assign_missions();
 
@@ -72,11 +75,12 @@ mod tests {
 
     #[macroquad::test]
     async fn test_move_robots() {
-        let width = 20;
-        let height = 20;
-        let seed = 12345;
+        let width = 64;
+        let height = 64;
+        let min_nb_resources = 1;
+        let max_nb_resources = 6;
 
-        let map = Map::new(width, height, seed).await;
+        let map = Map::new(width, height, min_nb_resources, max_nb_resources).await;
 
         let mut robots = map.robots.lock().unwrap();
         let initial_positions: Vec<(f32, f32)> = robots.iter().map(|robot| (robot.entity.pos_x, robot.entity.pos_y)).collect();

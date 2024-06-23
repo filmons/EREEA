@@ -1,7 +1,7 @@
 use crate::{entity::entity::Entity, resource::resource::Resource};
 use macroquad::prelude::*;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum RobotType {
     Neutral,
     Analyse,
@@ -10,7 +10,7 @@ pub enum RobotType {
     Imagerie,
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct Robot {
     pub entity: Entity,
     pub is_busy: bool,

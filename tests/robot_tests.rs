@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use super::*;
+    // use super::*;
     use async_std::task::block_on;
     use ereea::{resource::resource::{Resource, ResourceType}, robot::robot::{Robot, RobotType}};
-    use tokio::sync::futures;
+    // use tokio::sync::futures;
 
     #[test]
     fn test_robot_creation() {
@@ -49,7 +49,7 @@ mod tests {
         let resource = block_on(Resource::new(ResourceType::Minerai, 200.0, 200.0));
 
         block_on(async {
-            robot.specialisation("./assets/images/robot_drone_0.png", resource).await;
+            robot.specialisation("./assets/images/robot_0.png", resource).await;
 
             assert_eq!(robot.is_busy, false);
             assert_eq!(robot.resources.len(), 1);

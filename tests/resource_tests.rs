@@ -1,7 +1,4 @@
 use ereea::resource::resource::{Resource, ResourceType};
-use ereea::entity::entity::Entity;
-use macroquad::prelude::*;
-
 
 #[macroquad::test]
 async fn test_resource_creation() {

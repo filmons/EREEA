@@ -5,7 +5,7 @@ use macroquad::{
     texture::{draw_texture_ex, load_texture, DrawTextureParams, Texture2D},
 };
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct Entity {
     pub pos_x: f32,
     pub pos_y: f32,
@@ -27,6 +27,10 @@ impl Entity {
             offset_x: 0.0,
             offset_y: 0.0,
         }
+    }
+
+	pub fn position(&self) -> (f32, f32) {
+        (self.pos_x, self.pos_y)
     }
 
     /*
