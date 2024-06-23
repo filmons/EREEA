@@ -1,16 +1,41 @@
-use map::map::Map;
-use utils::utils::generate_rand;
-mod utils;
-mod map;
+use std::{thread::sleep, time::Duration};
+use ereea::station::station::Station;
+use macroquad::prelude::*;
 
-fn main() {
-    //Seed aléatoire, maiss maps reproductibles grâce au numéro de la seed comme dans Minecraft.
-    let map_seed = generate_rand(1, 100);
-    let map_width: usize = 32;
-    let map_height: usize = 32;
+#[macroquad::main("EREEA")]
+async fn main() {
+    let map_size_factor = 2; //Multiplie la taille de la map 32x32 par 2 soit 64x64 cases
 
-    let map = Map::new(map_seed, map_width, map_height, 5, 4, 2, 3);
+    let min_nb_per_resources = 1;
 
-    // Afficher la carte
-    map::map::Map::display_map(&map);
+    let max_nb_per_resources = 10; //Le nombre maximal qu'on pourrait afficher par ressources.
+
+    let mut station = Station::new(map_size_factor, min_nb_per_resources, max_nb_per_resources).await;
+
+    station.play_galactic_music().await;
+
+    loop {
+        clear_background(BLACK);
+
+        // Obtenir la position de la souris
+        let mouse_x = mouse_position().0;
+        let mouse_y = mouse_position().1;
+
+        station.draw(mouse_x, mouse_y, 0.4);
+
+        station.simulation_start().await;
+
+        if station.check_if_finished() {
+            println!("Mission terminée !\n");
+            sleep(Duration::from_secs(1));
+
+            station.restart_new_mission().await;
+            // break;
+        }
+
+        let mission_text = format!("Mission [ANNÉE-Y{}]", station.epoch);
+        draw_text(&mission_text, 32.0, 32.0, 32.0, WHITE);
+
+        next_frame().await;
+    }
 }
